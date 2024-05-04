@@ -1,0 +1,91 @@
+# type(spark)
+# dir(spark)
+# help(spark)
+# help(spark.createDataFrame)
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+help(StructField)
+help(StructType)
+
+from pyspark.sql.functions import col, lit, expr, column
+from pyspark.sql.functions import desc, asc
+
+# ---------------------------------------------
+
+# different ways to create dataframes:
+
+# 1st method:
+
+data = [(1, 'Radha', 90000), (2, 'Krishna', 700000), (3, 'Vrindha', 60000)]
+schema = ['id', 'name', 'salary']
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+
+# -------------
+
+# 2nd method:
+
+from pyspark.sql.types import StructField, StructType, StringType, IntegerType
+
+data = [(1, 'Radha', 90000), (2, 'Krishna', 700000), (3, 'Vrindha', 60000)]
+schema = StructType([StructField(name='id', dataType=IntegerType()),\
+                    StructField(name='name', dataType=StringType()),\
+                    StructField(name='salary', dataType=IntegerType())])
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+display(df)
+
+# -------------
+
+# 3rd method:
+
+from pyspark.sql.types import StructField, StructType, StringType, IntegerType
+
+data = [(1, ('Radha', 'Krishna'), 90000), (2, ('Madhan', 'Mohan'), 700000), (3, ('Vrindha', 'Vihari'), 60000)]
+
+nameSchema = StructType([StructField(name='firstName', dataType=StringType()),\
+                        StructField(name='lastName', dataType=StringType())])
+
+schema = StructType([StructField(name='id', dataType=IntegerType()),\
+                    StructField(name='name', dataType=nameSchema),\
+                    StructField(name='salary', dataType=IntegerType())])
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+display(df)
+
+
+# -------------
+
+# 4th method:
+
+from pyspark.sql.types import StructField, StructType, StringType, IntegerType
+data = [(1, 'Radha', 90000), (2, 'Krishna', 700000), (3, 'Vrindha', 60000)]
+
+schema = StructType().add('id', IntegerType()).add('name', StringType()).add('salary', IntegerType())
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+display(df)
+
+
+# -------------
+
+# 5th method:
+
+from pyspark.sql.types import StructField, StructType, StringType, IntegerType
+
+data = [(1, ('Radha', 'Krishna'), 90000), (2, ('Madhan', 'Mohan'), 700000), (3, ('Vrindha', 'Vihari'), 60000)]
+nameForm = StructType().add('firstName', StringType()).add('lastName', StringType())
+
+schema = StructType().add('id', IntegerType()).add('name', nameForm).add('salary', IntegerType())
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+display(df)
+
+
