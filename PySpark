@@ -2,6 +2,7 @@
 # dir(spark)
 # help(spark)
 # help(spark.createDataFrame)
+from pyspark.sql import *
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 help(StructField)
 help(StructType)
@@ -87,5 +88,58 @@ df = spark.createDataFrame(data=data, schema=schema)
 df.show()
 df.printSchema()
 display(df)
+
+# ---------------------------------------------
+
+
+# different ways to read CSV file data into data frames:
+
+# 1st method:
+df1 = spark.read.csv('dbfs:/FileStore/shared_uploads/nityaveera6@gmail.com/Order.csv', header=True)
+df1.show(4)
+
+# 2nd method:
+df2 = spark.read.format(source='csv').option(key='header', value=True).load(path='dbfs:/FileStore/shared_uploads/nityaveera6@gmail.com/Order.csv')
+df2.show(5)
+
+# 3rd method:
+df3 = spark.read.format(source='csv').options(header=True).load('dbfs:/FileStore/shared_uploads/nityaveera6@gmail.com/Order.csv')
+df3.show(4)
+
+# 4th method:
+df = spark.read.csv(['dbfs:/FileStore/shared_uploads/Temp_Practice1/Read_Data/order1.csv', 'dbfs:/FileStore/shared_uploads/Temp_Practice1/Order.csv'], header=True)
+df.show()
+
+# ---------------------------------------------
+
+# different ways to read JSON file data into data frames:
+
+# 1st method:
+df = spark.read.json('dbfs:/FileStore/shared_uploads/Temp/read/*.json')
+df.show()
+
+# 2nd method:
+df2 = spark.read.format(source='json').option(key='header', value=True).load(path='dbfs:/FileStore/shared_uploads/Temp/read/*.json')
+df2.show()
+
+# 3rd method:
+df3 = spark.read.format(source='json').options(header=True).load(path='dbfs:/FileStore/shared_uploads/Temp/read/*.json')
+df3.show(4)
+
+
+# ---------------------------------------------
+
+df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='overwrite')
+df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='error')
+df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='ignore')
+df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='append')
+
+df = spark.read.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True)
+# df.show()
+display(df)
+
+
+# ---------------------------------------------
+
 
 
