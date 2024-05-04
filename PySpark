@@ -129,17 +129,36 @@ df3.show(4)
 
 # ---------------------------------------------
 
+# different modes to write CSV file data into data frames:
+
 df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='overwrite')
 df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='error')
 df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='ignore')
 df.write.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True, mode='append')
 
-df = spark.read.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True)
-# df.show()
-display(df)
+display(spark.read.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True))
+
+df1 = spark.read.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/csv_order', header=True)
+# df1.show()
+display(df1)
 
 
 # ---------------------------------------------
 
+# different modes to write JSON file data into data frames:
+
+df.write.json(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/json_order', mode='overwrite')
+df.write.json(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/json_order', mode='error')
+df.write.json(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/json_order', mode='ignore')
+df.write.json(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/json_order', mode='append')
+
+display(spark.read.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/json_order'))
+
+df1 = spark.read.csv(path='dbfs:/FileStore/shared_uploads/Temp_Practice1/write/json_order')
+df1.show()
+display(df1)
+
+
+# ---------------------------------------------
 
 
