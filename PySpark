@@ -161,4 +161,130 @@ display(df1)
 
 # ---------------------------------------------
 
+# ArrayType in a data frame:
+
+from pyspark.sql.types import StructField, StructType, StringType, IntegerType, ArrayType
+data = [(1, ['Radha', 'Krishna'], 90000), (2, ['Vrindha', 'Vihari'], 80000), (3, ['Madhan', 'Mohan'], 70000)]
+
+schema = ['id', 'name', 'salary']
+
+# schema = StructType([StructField(name='id', dataType=IntegerType()),\
+#                     StructField(name='name', dataType=ArrayType(StringType())),\
+#                     StructField(name='salary', dataType=IntegerType())])
+
+df = spark.createDataFrame(data=data, schema=schema) 
+df.show()
+df.printSchema()
+# display(df)
+
+# accessing the index values:
+
+df1 = df.withColumn('firstName', df.name[0])
+df1.show()
+
+df2 = df.withColumn('firstName', df.name[0]).withColumn('lastName', df.name[1])
+df2.show()
+
+# Result:
+
++---+-----------------+------+
+| id|             name|salary|
++---+-----------------+------+
+|  1| [Radha, Krishna]| 90000|
+|  2|[Vrindha, Vihari]| 80000|
+|  3|  [Madhan, Mohan]| 70000|
++---+-----------------+------+
+
++---+-----------------+------+---------+
+| id|             name|salary|firstName|
++---+-----------------+------+---------+
+|  1| [Radha, Krishna]| 90000|    Radha|
+|  2|[Vrindha, Vihari]| 80000|  Vrindha|
+|  3|  [Madhan, Mohan]| 70000|   Madhan|
++---+-----------------+------+---------+
+
++---+-----------------+------+---------+--------+
+| id|             name|salary|firstName|lastName|
++---+-----------------+------+---------+--------+
+|  1| [Radha, Krishna]| 90000|    Radha| Krishna|
+|  2|[Vrindha, Vihari]| 80000|  Vrindha|  Vihari|
+|  3|  [Madhan, Mohan]| 70000|   Madhan|   Mohan|
++---+-----------------+------+---------+--------+
+
+
+# ---------------------------------------------
+
+# array() in a data frame:
+
+from pyspark.sql.functions import array
+
+data = [(1,2), (3,4)]
+schema = ['num1', 'num2']
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+display(df)
+
+# converting the numbers into the array:
+df2 = df.withColumn('numbers', array(df.num1, df.num2)).show()
+
+
+# Result:
+
++----+----+
+|num1|num2|
++----+----+
+|   1|   2|
+|   3|   4|
++----+----+
+
++----+----+-------+
+|num1|num2|numbers|
++----+----+-------+
+|   1|   2| [1, 2]|
+|   3|   4| [3, 4]|
++----+----+-------+
+
+
+# ---------------------------------------------
+
+# explode():
+
+from pyspark.sql.functions import explode
+data = [(1,  'Radha', ['Java', 'Python'], 90000), (2, 'Vrindha', ['Scala', 'R'], 80000), (3, 'Madhan', ['Azure', 'AWS'], 70000)]
+
+schema = ['id', 'name', 'Skills', 'salary']
+
+df = spark.createDataFrame(data=data, schema=schema) 
+df.show()
+# df.printSchema()
+# display(df)
+
+df1 = df.withColumn('New_Skills', explode(df.Skills))
+df1.show()
+
+# Results:
+
++---+-------+--------------+------+
+| id|   name|        Skills|salary|
++---+-------+--------------+------+
+|  1|  Radha|[Java, Python]| 90000|
+|  2|Vrindha|    [Scala, R]| 80000|
+|  3| Madhan|  [Azure, AWS]| 70000|
++---+-------+--------------+------+
+
++---+-------+--------------+------+----------+
+| id|   name|        Skills|salary|New_Skills|
++---+-------+--------------+------+----------+
+|  1|  Radha|[Java, Python]| 90000|      Java|
+|  1|  Radha|[Java, Python]| 90000|    Python|
+|  2|Vrindha|    [Scala, R]| 80000|     Scala|
+|  2|Vrindha|    [Scala, R]| 80000|         R|
+|  3| Madhan|  [Azure, AWS]| 70000|     Azure|
+|  3| Madhan|  [Azure, AWS]| 70000|       AWS|
++---+-------+--------------+------+----------+
+
+
+# ---------------------------------------------
 
