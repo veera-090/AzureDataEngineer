@@ -251,7 +251,7 @@ df2 = df.withColumn('numbers', array(df.num1, df.num2)).show()
 
 # explode():
 
-from pyspark.sql.functions import explode
+from pyspark.sql.functions import explode, col
 data = [(1,  'Radha', ['Java', 'Python'], 90000), (2, 'Vrindha', ['Scala', 'R'], 80000), (3, 'Madhan', ['Azure', 'AWS'], 70000)]
 
 schema = ['id', 'name', 'Skills', 'salary']
@@ -262,6 +262,7 @@ df.show()
 # display(df)
 
 df1 = df.withColumn('New_Skills', explode(df.Skills))
+# df1 = df.withColumn('New_Skills', explode(col('skills')))
 df1.show()
 
 # Results:
@@ -287,4 +288,119 @@ df1.show()
 
 
 # ---------------------------------------------
+
+# split():
+
+from pyspark.sql.functions import split, col
+data = [(1,  'Radha', 'Java, Python', 90000), (2, 'Vrindha', 'Scala, R', 80000), (3, 'Madhan', 'Azure, AWS', 70000)]
+
+schema = ['id', 'name', 'Skills', 'salary']
+
+df = spark.createDataFrame(data=data, schema=schema) 
+df.show()
+# df.printSchema()
+# display(df)
+
+# df1 = df.withColumn('New_Skills', split(df.Skills, ','))
+df1 = df.withColumn('New_Skills', split(col('skills'), ','))
+
+df1.show()
+
+# Results:
+
++---+-------+-----------+------+
+| id|   name|     Skills|salary|
++---+-------+-----------+------+
+|  1|  Radha|Java,Python| 90000|
+|  2|Vrindha|    Scala,R| 80000|
+|  3| Madhan|  Azure,AWS| 70000|
++---+-------+-----------+------+
+
++---+-------+-----------+------+--------------+
+| id|   name|     Skills|salary|    New_Skills|
++---+-------+-----------+------+--------------+
+|  1|  Radha|Java,Python| 90000|[Java, Python]|
+|  2|Vrindha|    Scala,R| 80000|    [Scala, R]|
+|  3| Madhan|  Azure,AWS| 70000|  [Azure, AWS]|
++---+-------+-----------+------+--------------+
+
+
+# ---------------------------------------------
+
+# array():
+
+from pyspark.sql.functions import array, col
+
+data = [(1,  'Radha', 'Java', 'Python'), (2, 'Vrindha', 'Scala', 'R'), (3, 'Madhan', 'Azure', 'AWS')]
+
+schema = ['id', 'name', 'firstSkill', 'secondSkill']
+
+df = spark.createDataFrame(data=data, schema=schema) 
+df.show()
+# df.printSchema()
+
+# df1 = df.withColumn('Skills', array(df.firstSkill , df.secondSkill))
+df1 = df.withColumn('Skills', array(col('firstSkill'), col('secondSkill')))
+df1.show()
+
+# Ressults:
+
++---+-------+----------+-----------+
+| id|   name|firstSkill|secondSkill|
++---+-------+----------+-----------+
+|  1|  Radha|      Java|     Python|
+|  2|Vrindha|     Scala|          R|
+|  3| Madhan|     Azure|        AWS|
++---+-------+----------+-----------+
+
++---+-------+----------+-----------+--------------+
+| id|   name|firstSkill|secondSkill|        Skills|
++---+-------+----------+-----------+--------------+
+|  1|  Radha|      Java|     Python|[Java, Python]|
+|  2|Vrindha|     Scala|          R|    [Scala, R]|
+|  3| Madhan|     Azure|        AWS|  [Azure, AWS]|
++---+-------+----------+-----------+--------------+
+
+
+# ---------------------------------------------
+
+array_contains():
+
+from pyspark.sql.functions import array_contains, col
+
+data = [(1, 'Virndha', ['java', '.net']), (2, 'Vihari', ['python', 'scala']), (3, 'Vaibhav', ['Azure', 'AWS'])]
+
+schema = ['id', 'name', 'skills']
+
+df = spark.createDataFrame(data=data, schema=schema) 
+df.show()
+df.printSchema()
+
+# df1 = df.withColumn('is Java present ?', array_contains(df.skills, 'java'))
+df1 = df.withColumn('is Python present ?', array_contains(col('skills'), 'python'))
+df1.show()
+
+
+# Results:
+
++---+-------+---------------+
+| id|   name|         skills|
++---+-------+---------------+
+|  1|Virndha|   [java, .net]|
+|  2| Vihari|[python, scala]|
+|  3|Vaibhav|   [Azure, AWS]|
++---+-------+---------------+
+
++---+-------+---------------+-------------------+
+| id|   name|         skills|is Python present ?|
++---+-------+---------------+-------------------+
+|  1|Virndha|   [java, .net]|              false|
+|  2| Vihari|[python, scala]|               true|
+|  3|Vaibhav|   [Azure, AWS]|              false|
++---+-------+---------------+-------------------+
+
+
+# ---------------------------------------------
+
+
 
