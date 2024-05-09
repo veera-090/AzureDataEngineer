@@ -364,7 +364,7 @@ df1.show()
 
 # ---------------------------------------------
 
-array_contains():
+# array_contains():
 
 from pyspark.sql.functions import array_contains, col
 
@@ -401,6 +401,210 @@ df1.show()
 
 
 # ---------------------------------------------
+# MapType
+# map_keys()
+# map_values()
 
+from pyspark.sql.types import MapType, StructType, StructField, StringType, IntegerType
+
+data =[('Krishna', {'hair':'black', 'eyes':'brown'}), ('Radha', {'hair':'black', 'eyes':'blue'})]
+
+# schema = ['name', 'properties']
+
+schema = StructType([StructField(name='name', dataType=StringType()),\
+                    StructField(name='properties', dataType=MapType(StringType(), StringType()))])
+
+df = spark.createDataFrame(data= data, schema=schema)
+df.show(truncate=False)
+# df.printSchema()
+
+# MapType():
+df1 = df.withColumn('header', df.properties['hair'])
+df1.show()
+
+# Access the keys or values:
+df4 = df.withColumn('access_Keys', df.properties.getItem('keys'))
+df4.show(truncate=False)
+
+# map_key():
+from pyspark.sql.functions import map_keys
+df2 = df.withColumn('keys', map_keys(df.properties))
+df2.show(truncate=False)
+
+# mpa_values():
+from pyspark.sql.functions import map_values
+df3 = df.withColumn('values', map_values(df.properties))
+df3.show(truncate=False)
+
+# Results:
+
++-------+------------------------------+
+|name   |properties                    |
++-------+------------------------------+
+|Krishna|{eyes -> brown, hair -> black}|
+|Radha  |{eyes -> blue, hair -> black} |
++-------+------------------------------+
+
++-------+------------------------------+------+
+|name   |properties                    |header|
++-------+------------------------------+------+
+|Krishna|{eyes -> brown, hair -> black}|black |
+|Radha  |{eyes -> blue, hair -> black} |black |
++-------+------------------------------+------+
+
++-------+------------------------------+-----------+
+|name   |properties                    |access_Keys|
++-------+------------------------------+-----------+
+|Krishna|{eyes -> brown, hair -> black}|null       |
+|Radha  |{eyes -> blue, hair -> black} |null       |
++-------+------------------------------+-----------+
+
++-------+------------------------------+------------+
+|name   |properties                    |keys        |
++-------+------------------------------+------------+
+|Krishna|{eyes -> brown, hair -> black}|[eyes, hair]|
+|Radha  |{eyes -> blue, hair -> black} |[eyes, hair]|
++-------+------------------------------+------------+
+
++-------+------------------------------+--------------+
+|name   |properties                    |values        |
++-------+------------------------------+--------------+
+|Krishna|{eyes -> brown, hair -> black}|[brown, black]|
+|Radha  |{eyes -> blue, hair -> black} |[blue, black] |
++-------+------------------------------+--------------+
+
+
+# ---------------------------------------------
+
+
+# how to create a data frame using the Row class:
+
+from pyspark.sql import Row
+
+# method-1:
+row1 = Row(id=1, name='Madhan', salary=70000)
+row2 = Row(id=2, name='Mohan', salary=60000)
+
+print(row1.name + ' ' + str(row2.salary))
+
+data = [row1, row2]
+df = spark.createDataFrame(data)
+df.show()
+
+# method:2
+row1 = Row(1, 'Krishna', 80000)
+row2 = Row(2, 'Radha', 90000)
+
+print(row1[1] + ' ' + str(row1[2]))
+
+data = [row1, row2]
+df = spark.createDataFrame(data=data)
+df.show()
+
+
+# method:3
+person = Row('id', 'name', 'salary')
+r1 = person(1, 'Vrinda', 80000)
+r2 = person(2, 'Vihari', 70000)
+data = [r1, r2]
+
+print(r1.name + ' ' + r2.name)
+
+df = spark.createDataFrame(data)
+df.show()
+
+
+Madhan 60000
++---+------+------+
+| id|  name|salary|
++---+------+------+
+|  1|Madhan| 70000|
+|  2| Mohan| 60000|
++---+------+------+
+
+Krishna 80000
++---+-------+-----+
+| _1|     _2|   _3|
++---+-------+-----+
+|  1|Krishna|80000|
+|  2|  Radha|90000|
++---+-------+-----+
+
+Vrinda Vihari
++---+------+------+
+| id|  name|salary|
++---+------+------+
+|  1|Vrinda| 80000|
+|  2|Vihari| 70000|
++---+------+------+
+
+
+# ---------------------------------------------
+
+# column:
+
+
+from pyspark.sql.functions import lit
+
+col1 = lit('India')
+print(type(col1))
+
+data = [(1, 'Krishna', 'Male', 80000), (2, 'Radha', 'Female', 90000)]
+
+schema = ['id', 'name', 'gender', 'salary']
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+
+df1 = df.withColumn('Country', lit('India'))
+df1.show()
+
+# Results:
+
+<class 'pyspark.sql.column.Column'>
++---+-------+------+------+
+| id|   name|gender|salary|
++---+-------+------+------+
+|  1|Krishna|  Male| 80000|
+|  2|  Radha|Female| 90000|
++---+-------+------+------+
+
++---+-------+------+------+-------+
+| id|   name|gender|salary|Country|
++---+-------+------+------+-------+
+|  1|Krishna|  Male| 80000|  India|
+|  2|  Radha|Female| 90000|  India|
++---+-------+------+------+-------+
+
+root
+ |-- id: long (nullable = true)
+ |-- name: string (nullable = true)
+ |-- gender: string (nullable = true)
+ |-- salary: long (nullable = true)
+ |-- Country: string (nullable = false)
+
+
+# ---------------------------------------------
+
+# different ways to get the columns:
+
+from pyspark.sql.functions import col
+
+df1.select(df.gender).show()
+df1.select(df['gender']).show()
+df.select(col('gender')).show()
+
+
+# Results:
+
++------+
+|gender|
++------+
+|  Male|
+|Female|
++------+
+
+
+# ---------------------------------------------
 
 
