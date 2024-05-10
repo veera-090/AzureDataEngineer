@@ -713,3 +713,163 @@ df1.show()
 
 # ---------------------------------------------
 
+# alias(), case(), asc(), desc(), like(), filter(), when()
+
+data = [(1, 'Krishna', 140000), (2, 'Radha', 160000), (3, 'Vrinda', 150000), (4, 'Vrihari', 130000)]
+schema = ['id', 'name', 'salary']
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+
+df1 = df.select(df.id.alias('emp_id'), df.name.alias('empp_name'), df.salary.alias('emp_salary')).show()
+# df2 = df.sort(df.name.desc()).show()
+# df3 = df.sort(df.salary.desc()).show()
+# df4 = df.filter(df.name.like('vr%')).show()
+# df5 = df.filter(df.name.like('_r%')).show()
+# df6 = df.where(df.name == 'vrinda').show()
+# df7 = df.where("name == 'vrihari'").show()
+# df8 = df.filter(df.name == 'Krishna').show()
+# df9 = df.filter((df.name == 'Radha') & (df.salary == 160000)).show()
+df10 = df.select(df.id, df.name, df.salary.cast('int'))
+df10.show()
+df10.printSchema()
+
+
+# Results:
+
++---+-------+------+
+| id|   name|salary|
++---+-------+------+
+|  1|Krishna|140000|
+|  2|  Radha|160000|
+|  3| Vrinda|150000|
+|  4|Vrihari|130000|
++---+-------+------+
+
+root
+ |-- id: long (nullable = true)
+ |-- name: string (nullable = true)
+ |-- salary: long (nullable = true)
+
++------+---------+----------+
+|emp_id|empp_name|emp_salary|
++------+---------+----------+
+|     1|  Krishna|    140000|
+|     2|    Radha|    160000|
+|     3|   Vrinda|    150000|
+|     4|  Vrihari|    130000|
++------+---------+----------+
+
++---+-------+------+
+| id|   name|salary|
++---+-------+------+
+|  1|Krishna|140000|
+|  2|  Radha|160000|
+|  3| Vrinda|150000|
+|  4|Vrihari|130000|
++---+-------+------+
+
+root
+ |-- id: long (nullable = true)
+ |-- name: string (nullable = true)
+ |-- salary: integer (nullable = true)
+
+
+# ---------------------------------------------
+
+# distinct(), dropDuplicates():
+
+
+# help(df.distinct)
+# help(df.dropDuplicates)
+
+data = [(1, 'Krishna', 'Male', 80000), (2, 'Radha', 'Female', 90000), (3, 'Vrinda', 'Female', 130000), (4, 'Radha', 'Female', 140000), (3, 'Vrinda', 'Female', 130000)]
+schema = ['id', 'name', 'gender', 'salary']
+
+df = spark.createDataFrame(data=data, schema=schema)
+# df.show()
+
+df.distinct().show()
+df.dropDuplicates(['name','gender']).show()
+df.dropDuplicates(['gender']).show()
+df.dropDuplicates(['gender']).count()
+
+# Results:
+
++---+-------+------+------+
+| id|   name|gender|salary|
++---+-------+------+------+
+|  1|Krishna|  Male| 80000|
+|  2|  Radha|Female| 90000|
+|  3| Vrinda|Female|130000|
+|  4|  Radha|Female|140000|
++---+-------+------+------+
+
++---+-------+------+------+
+| id|   name|gender|salary|
++---+-------+------+------+
+|  1|Krishna|  Male| 80000|
+|  2|  Radha|Female| 90000|
+|  3| Vrinda|Female|130000|
++---+-------+------+------+
+
++---+-------+------+------+
+| id|   name|gender|salary|
++---+-------+------+------+
+|  2|  Radha|Female| 90000|
+|  1|Krishna|  Male| 80000|
++---+-------+------+------+
+
+Out[17]: 2
+
+
+# ---------------------------------------------
+
+# sort(), orderBy():
+
+
+data = [(1, 'Krishna', 'Male', 80000, 'HR'), (2, 'Radha', 'Female', 90000, 'IT'), (3, 'Vrinda', 'Female', 130000, 'IT'), (4, 'Radha', 'Female', 140000, 'HR'), (5, 'Vrinda', 'Female', 130000, 'HR')]
+schema = ['id', 'name', 'gender', 'salary', 'dept']
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+
+df.sort(df.dept.desc()).show()
+df.orderBy(df.name.desc()).show()
+
+# Results:
+
++---+-------+------+------+----+
+| id|   name|gender|salary|dept|
++---+-------+------+------+----+
+|  1|Krishna|  Male| 80000|  HR|
+|  2|  Radha|Female| 90000|  IT|
+|  3| Vrinda|Female|130000|  IT|
+|  4|  Radha|Female|140000|  HR|
+|  5| Vrinda|Female|130000|  HR|
++---+-------+------+------+----+
+
++---+-------+------+------+----+
+| id|   name|gender|salary|dept|
++---+-------+------+------+----+
+|  2|  Radha|Female| 90000|  IT|
+|  3| Vrinda|Female|130000|  IT|
+|  4|  Radha|Female|140000|  HR|
+|  1|Krishna|  Male| 80000|  HR|
+|  5| Vrinda|Female|130000|  HR|
++---+-------+------+------+----+
+
++---+-------+------+------+----+
+| id|   name|gender|salary|dept|
++---+-------+------+------+----+
+|  3| Vrinda|Female|130000|  IT|
+|  5| Vrinda|Female|130000|  HR|
+|  2|  Radha|Female| 90000|  IT|
+|  4|  Radha|Female|140000|  HR|
+|  1|Krishna|  Male| 80000|  HR|
++---+-------+------+------+----+
+
+# ---------------------------------------------
+
+
