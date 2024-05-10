@@ -426,7 +426,7 @@ df1.show()
 df4 = df.withColumn('access_Keys', df.properties.getItem('keys'))
 df4.show(truncate=False)
 
-# map_key():
+# map_keys():
 from pyspark.sql.functions import map_keys
 df2 = df.withColumn('keys', map_keys(df.properties))
 df2.show(truncate=False)
@@ -586,7 +586,7 @@ root
 
 # ---------------------------------------------
 
-# different ways to get the columns:
+# different ways to get/access the columns:
 
 from pyspark.sql.functions import col
 
@@ -607,4 +607,109 @@ df.select(col('gender')).show()
 
 # ---------------------------------------------
 
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+data = [(1, 'Krishna', 'Male', 80000, ('black', 'blue')), (2, 'Radha', 'Female', 90000, ('black', 'brown'))]
+# schema = ['id', 'name', 'gender', 'salary', 'properties']
+
+propType = StructType([StructField(name='hair', dataType=StringType()),\
+                    StructField(name='eyes', dataType=StringType())])
+
+schema = StructType([StructField(name='id', dataType=IntegerType()),\
+                    StructField(name='name', dataType=StringType()),\
+                    StructField(name='gender', dataType=StringType()),\
+                    StructField(name='salary', dataType=IntegerType()),\
+                    StructField(name='propType', dataType=propType)])
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+df.printSchema()
+
+# different ways to access Struct Columns:
+from pyspark.sql.functions import col
+
+df1 = df.select(df.propType.hair).show()
+df2 = df.select(df['propType.eyes']).show()
+df3 = df.select(col('propType.hair')).show()
+df4 = df.select(df.propType.getItem('eyes')).show()
+
+
+# Results:
+
++---+-------+------+------+--------------+
+| id|   name|gender|salary|      propType|
++---+-------+------+------+--------------+
+|  1|Krishna|  Male| 80000| {black, blue}|
+|  2|  Radha|Female| 90000|{black, brown}|
++---+-------+------+------+--------------+
+
+root
+ |-- id: integer (nullable = true)
+ |-- name: string (nullable = true)
+ |-- gender: string (nullable = true)
+ |-- salary: integer (nullable = true)
+ |-- propType: struct (nullable = true)
+ |    |-- hair: string (nullable = true)
+ |    |-- eyes: string (nullable = true)
+
++-------------+
+|propType.hair|
++-------------+
+|        black|
+|        black|
++-------------+
+
++-----+
+| eyes|
++-----+
+| blue|
+|brown|
++-----+
+
++-----+
+| hair|
++-----+
+|black|
+|black|
++-----+
+
++-------------+
+|propType.eyes|
++-------------+
+|         blue|
+|        brown|
++-------------+
+
+
+# ---------------------------------------------
+
+# when() & otherwise():
+
+data = [(1, 'Krishna', 'M', 140000), (2, 'Radha', 'F', 160000), (3, 'Vrinda', '', 150000)]
+schema = ['id', 'name', 'gender', 'salary']
+
+df = spark.createDataFrame(data=data, schema=schema)
+df.show()
+
+df1 = df.select(df.id, df.name, when(df.gender == 'M', 'Male').when(df.gender == 'F', 'Female').otherwise('Unknown').alias('Gender'), df.salary)
+df1.show()
+
+# Results:
+
++---+-------+------+------+
+| id|   name|gender|salary|
++---+-------+------+------+
+|  1|Krishna|     M|140000|
+|  2|  Radha|     F|160000|
+|  3| Vrinda|      |150000|
++---+-------+------+------+
+
++---+-------+-------+------+
+| id|   name| Gender|salary|
++---+-------+-------+------+
+|  1|Krishna|   Male|140000|
+|  2|  Radha| Female|160000|
+|  3| Vrinda|Unknown|150000|
++---+-------+-------+------+
+
+# ---------------------------------------------
 
